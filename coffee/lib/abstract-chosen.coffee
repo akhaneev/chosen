@@ -256,7 +256,9 @@ class AbstractChosen
         @mouse_on_container = false
         break
       when 13 # enter
-        evt.preventDefault() if @results_showing
+        if @results_showing
+          evt.stopPropagation()
+          evt.preventDefault()
         break
       when 27 # escape
         evt.preventDefault() if @results_showing
@@ -331,10 +333,10 @@ class AbstractChosen
 
   get_single_html: ->
     """
-      <a class="chosen-single chosen-default">
+      <div class="chosen-single chosen-default">
         <span>#{@default_text}</span>
         <div><b></b></div>
-      </a>
+      </div>
       <div class="chosen-drop">
         <div class="chosen-search">
           <input class="chosen-search-input" type="text" autocomplete="off" />
@@ -367,13 +369,6 @@ class AbstractChosen
   @browser_is_supported: ->
     if "Microsoft Internet Explorer" is window.navigator.appName
       return document.documentMode >= 8
-    if /iP(od|hone)/i.test(window.navigator.userAgent) or
-       /IEMobile/i.test(window.navigator.userAgent) or
-       /Windows Phone/i.test(window.navigator.userAgent) or
-       /BlackBerry/i.test(window.navigator.userAgent) or
-       /BB10/i.test(window.navigator.userAgent) or
-       /Android.*Mobile/i.test(window.navigator.userAgent)
-      return false
     return true
 
   @default_multiple_text: "Select Some Options"

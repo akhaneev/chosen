@@ -1,7 +1,7 @@
 $ = jQuery
 
 $.fn.extend({
-  chosen: (options) ->
+  chosenTF: (options) ->
     # Do no harm and return as soon as possible for unsupported browsers, namely IE6 and IE7
     # Continue on if running IE document type but in compatibility mode
     return this unless AbstractChosen.browser_is_supported()
@@ -141,7 +141,7 @@ class Chosen extends AbstractChosen
         @search_field.val "" if @is_multiple
         $(@container[0].ownerDocument).on 'click.chosen', @click_test_action
         this.results_show()
-      else if not @is_multiple and evt and (($(evt.target)[0] == @selected_item[0]) || $(evt.target).parents("a.chosen-single").length)
+      else if not @is_multiple and evt and (($(evt.target)[0] == @selected_item[0]) || $(evt.target).parents("div.chosen-single").length)
         evt.preventDefault()
         this.results_toggle()
 
@@ -194,7 +194,7 @@ class Chosen extends AbstractChosen
     @parsing = true
     @selected_option_count = null
 
-    @results_data = SelectParser.select_to_array @form_field
+    @results_data = SelectParser.select_to_array @form_field, this.options.isHtml
 
     if @is_multiple
       @search_choices.find("li.search-choice").remove()
@@ -303,11 +303,11 @@ class Chosen extends AbstractChosen
 
   choice_build: (item) ->
     choice = $('<li />', { class: "search-choice" }).html("<span>#{this.choice_label(item)}</span>")
-
+    choice.css('max-width', (if this.container.width() > 100 then this.container.width() - 40 else ''))
     if item.disabled
       choice.addClass 'search-choice-disabled'
     else
-      close_link = $('<a />', { class: 'search-choice-close', 'data-option-array-index': item.array_index })
+      close_link = $('<span />', { class: 'search-choice-close', 'data-option-array-index': item.array_index })
       close_link.on 'click.chosen', (evt) => this.choice_destroy_link_click(evt)
       choice.append close_link
 
@@ -319,6 +319,8 @@ class Chosen extends AbstractChosen
     this.choice_destroy $(evt.target) unless @is_disabled
 
   choice_destroy: (link) ->
+    if link.length == 0
+      link = this.pending_backstroke.find('.search-choice-close')
     if this.result_deselect( link[0].getAttribute("data-option-array-index") )
       if @active_field
         @search_field.focus()
@@ -388,6 +390,19 @@ class Chosen extends AbstractChosen
       evt.preventDefault()
 
       this.search_field_scale()
+    else if @options.addUserOption
+      searchValue = this.search_field.val();
+      contains = false;
+      this.results_data.some( (o) ->
+        if o.text == searchValue
+          contains = true
+          true
+      );
+      if !contains
+        @form_field_jq.append('<option value="' + searchValue + '" selected="selected">' + searchValue + '</option>')
+          .trigger('change', {selected: searchValue})
+          .trigger('chosen:updated');
+        return 
 
   single_set_selected_text: (text=@default_text) ->
     if text is @default_text
@@ -440,6 +455,12 @@ class Chosen extends AbstractChosen
   no_results: (terms) ->
     no_results_html = this.get_no_results_html(terms)
     @search_results.append no_results_html
+    if @options.addUserOption
+      t = this;
+      no_results_html.addClass('add-user-option').click(() ->
+        t.result_select()
+        return
+      )
     @form_field_jq.trigger("chosen:no_results", {chosen:this})
 
   no_results_clear: ->

@@ -137,7 +137,7 @@ class @Chosen extends AbstractChosen
         @search_field.clear() if @is_multiple
         @container.ownerDocument.observe "click", @click_test_action
         this.results_show()
-      else if not @is_multiple and evt and (evt.target is @selected_item || evt.target.up("a.chosen-single"))
+      else if not @is_multiple and evt and (evt.target is @selected_item || evt.target.up("div.chosen-single"))
         this.results_toggle()
 
       this.activate_field()
@@ -187,7 +187,7 @@ class @Chosen extends AbstractChosen
     @parsing = true
     @selected_option_count = null
 
-    @results_data = SelectParser.select_to_array @form_field
+    @results_data = SelectParser.select_to_array @form_field, @options.isHtml
 
     if @is_multiple
       @search_choices.select("li.search-choice").invoke("remove")
@@ -295,11 +295,11 @@ class @Chosen extends AbstractChosen
 
   choice_build: (item) ->
     choice = new Element('li', { class: "search-choice" }).update("<span>#{this.choice_label(item)}</span>")
-
+    choice.css('max-width', (if this.container.width() > 100 then this.container.width() - 40 else ''))
     if item.disabled
       choice.addClassName 'search-choice-disabled'
     else
-      close_link = new Element('a', { href: '#', class: 'search-choice-close', rel: item.array_index })
+      close_link = new Element('span', { href: '#', class: 'search-choice-close', rel: item.array_index })
       close_link.observe "click", (evt) => this.choice_destroy_link_click(evt)
       choice.insert close_link
 
@@ -311,6 +311,8 @@ class @Chosen extends AbstractChosen
     this.choice_destroy evt.target unless @is_disabled
 
   choice_destroy: (link) ->
+    if link.length == 0
+      link = this.pending_backstroke.find('.search-choice-close');
     if this.result_deselect link.readAttribute("rel")
       if @active_field
         @search_field.focus()
@@ -380,6 +382,18 @@ class @Chosen extends AbstractChosen
       evt.preventDefault()
 
       this.search_field_scale()
+    else if @options.addUserOption
+      searchValue = this.search_field.val();
+      contains = false;
+      this.results_data.some( (o) ->
+        if o.text == searchValue
+          contains = true
+          true
+      );
+      if !contains
+        @form_field_jq.append('<option value="' + searchValue + '" selected="selected">' + searchValue + '</option>')
+          .trigger('change', {selected: searchValue})
+          .trigger('chosen:updated');
 
   single_set_selected_text: (text=@default_text) ->
     if text is @default_text
@@ -432,7 +446,13 @@ class @Chosen extends AbstractChosen
     this.result_do_highlight do_high if do_high?
 
   no_results: (terms) ->
-    @search_results.insert this.get_no_results_html(terms)
+    no_results_html = this.get_no_results_html(terms)
+    @search_results.insert no_results_html
+    if @options.addUserOption
+      t = this;
+      no_results_html.addClass('add-user-option').click(() ->
+        t.result_select()
+      )
     @form_field.fire("chosen:no_results", {chosen: this})
 
   no_results_clear: ->
