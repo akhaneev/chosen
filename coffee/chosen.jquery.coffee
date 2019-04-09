@@ -281,10 +281,11 @@ class Chosen extends AbstractChosen
 
   show_search_field_default: ->
     if @is_multiple and this.choices_count() < 1 and not @active_field
-      @search_field.val(@default_text)
+      @search_field.attr("placeholder", @default_text)
       @search_field.addClass "default"
     else
       @search_field.val("")
+      @search_field.attr("placeholder", "")
       @search_field.removeClass "default"
 
   search_results_mouseup: (evt) ->
