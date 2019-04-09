@@ -446,7 +446,7 @@ class @Chosen extends AbstractChosen
     this.result_do_highlight do_high if do_high?
 
   no_results: (terms) ->
-    no_results_html = this.get_no_results_html(terms)
+    no_results_html = $(this.get_no_results_html(terms))
     @search_results.insert no_results_html
     if @options.addUserOption
       t = this;
