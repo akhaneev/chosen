@@ -519,7 +519,7 @@ class Chosen extends AbstractChosen
       style_block[style] = @search_field.css(style)
 
     div = $('<div />').css(style_block)
-    div.text @search_field.attr('placeholder')
+    div.text @search_field.attr('placeholder') || this.get_search_field_value()
     $('body').append div
 
     width = div.width() + 25
