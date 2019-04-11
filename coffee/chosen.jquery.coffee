@@ -280,11 +280,11 @@ class Chosen extends AbstractChosen
       @form_field_label.on 'click.chosen', this.label_click_handler
 
   show_search_field_default: ->
+    @search_field.val("")
     if @is_multiple and this.choices_count() < 1 and not @active_field
       @search_field.attr("placeholder", @default_text)
       @search_field.addClass "default"
     else
-      @search_field.val("")
       @search_field.attr("placeholder", "")
       @search_field.removeClass "default"
 
