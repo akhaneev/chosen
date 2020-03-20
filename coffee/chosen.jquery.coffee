@@ -400,7 +400,8 @@ class Chosen extends AbstractChosen
           true
       );
       if !contains
-        @form_field_jq.append('<option value="' + searchValue + '" selected="selected">' + searchValue + '</option>')
+        option = $('<option selected="selected"></option>').attr("value", searchValue).text(searchValue);
+        @form_field_jq.append(option)
           .trigger('change', {selected: searchValue})
           .trigger('chosen:updated');
         return 
