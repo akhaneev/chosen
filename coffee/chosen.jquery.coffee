@@ -136,7 +136,9 @@ class Chosen extends AbstractChosen
     if evt and evt.type in ['mousedown', 'touchstart'] and not @results_showing
       evt.preventDefault()
 
-    if not (evt? and ($ evt.target).hasClass "search-choice-close")
+    if evt? and ($ evt.target).hasClass "ui-resizable-handle"
+      this.results_hide()
+    else if not (evt? and ($ evt.target).hasClass "search-choice-close")
       if not @active_field
         @search_field.val "" if @is_multiple
         $(@container[0].ownerDocument).on 'click.chosen', @click_test_action
