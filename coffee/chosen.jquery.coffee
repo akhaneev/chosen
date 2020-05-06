@@ -509,24 +509,28 @@ class Chosen extends AbstractChosen
   search_field_scale: ->
     return unless @is_multiple
 
-    style_block =
-      position: 'absolute'
-      left: '-1000px'
-      top: '-1000px'
-      display: 'none'
-      whiteSpace: 'pre'
+    text = @search_field.attr('placeholder') || this.get_search_field_value()
+    width = 25
 
-    styles = ['fontSize', 'fontStyle', 'fontWeight', 'fontFamily', 'lineHeight', 'textTransform', 'letterSpacing']
+    if text
+      style_block =
+        position: 'absolute'
+        left: '-1000px'
+        top: '-1000px'
+        display: 'none'
+        whiteSpace: 'pre'
 
-    for style in styles
-      style_block[style] = @search_field.css(style)
+      styles = ['fontSize', 'fontStyle', 'fontWeight', 'fontFamily', 'lineHeight', 'textTransform', 'letterSpacing']
 
-    div = $('<div />').css(style_block)
-    div.text @search_field.attr('placeholder') || this.get_search_field_value()
-    $('body').append div
+      for style in styles
+        style_block[style] = @search_field.css(style)
 
-    width = div.width() + 25
-    div.remove()
+      div = $('<div />').css(style_block)
+      div.text @search_field.attr('placeholder') || this.get_search_field_value()
+      $('body').append div
+
+      width += div.width()
+      div.remove()
 
     if @container.is(':visible')
       width = Math.min(@container.outerWidth() - 10, width)
