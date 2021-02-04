@@ -80,7 +80,7 @@ class @Chosen extends AbstractChosen
     @search_field.observe "paste", (evt) => this.clipboard_event_checker(evt)
 
     if @is_multiple
-      @search_choices.observe "click", (evt) => this.choices_click(evt)
+      @search_choices.observe "click touchstart", (evt) => this.choices_click(evt)
     else
       @container.observe "click", (evt) => evt.preventDefault() # gobble click of anchor
 
