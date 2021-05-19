@@ -1,4 +1,4 @@
-$ = jQuery
+$ = window.$ || jQuery
 
 $.fn.extend({
   chosenTF: (options) ->
